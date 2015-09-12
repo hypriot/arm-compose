@@ -7,19 +7,22 @@ This build clones the official repo [docker/compose](https://github.com/docker/c
 
 The only customization is done in the `VERSION` file. This file contains the tag to build.
 
+## Build script
+
+This steps to build the ARM binary can be found in the drone.yml.
+
 ## Patches
 
 There are some file that have to be patched in the upstream repo. These files are in the `patches` folder.
 
 ### Patches for ARM
 
-For the ARM cpu type we have to patch the Dockerfile to adjust the `FROM` line and downloading a docker deb package.
+For the ARM cpu type we have to patch the Dockerfile to adjust the `FROM` line and downloading a docker deb package as well as the PyInstaller ARM bootloader.
 
 * Dockerfile
 
 ### Patches for Drone
 
-We use Drone to do the Build on a Scaleway server. As drone itself runs Docker containers we have to adjust some parts in the dockerindocker build.
+We use Drone to do the Build on a Scaleway server. As drone itself runs Docker containers we have to adjust the build to run the container as root.
 
 * script/build-linux
-* script/build-linux-inner
