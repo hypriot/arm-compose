@@ -1,0 +1,41 @@
+image: registry.hypriot.com/armbuildchain/dockerindocker
+docker:
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+git:
+  path: github.com/hypriot/arm-compose
+script:
+  - echo "+++++ start docker daemon +++++"
+  - wrapdocker &
+  - sleep 5
+  - echo "+++++ build docker compose +++++"
+  - export timestamp=$(date +"%Y%m%d%H%M")
+  - export VERSION=$(cat VERSION)
+  - export folder=/build/$VERSION-$timestamp/
+  - mkdir -p $folder
+  - git clone -b $VERSION https://github.com/docker/compose
+  - cp -r patches/* compose/
+  - cd compose
+  - script/build-linux
+  - cp dist/docker-compose-* $folder/docker-compose-`uname -s`-`uname -m`
+  - cd $folder
+  - shasum -a 256 docker-compose-`uname -s`-`uname -m` >docker-compose-`uname -s`-`uname -m`.sha256
+  - echo "+++++ stop docker daemon +++++"
+  - start-stop-daemon --stop --pidfile "/var/run/docker.pid"
+  - echo "#####################\n***** COMPLETED *****\n#####################"
+publish:
+  s3:
+    acl: public-read
+    region: eu-central-1
+    bucket: buildserver-production
+    access_key: $$AWS_ACCESS_KEY_ID
+    secret_key: $$AWS_SECRET_ACCESS_KEY
+    source: /build/
+    target: arm-binaries/compose/
+    recursive: true
+notify:
+  slack:
+    webhook_url: $$SLACK_WEBHOOK_URL
+    on_started: false
+    on_success: true
+    on_failure: true
