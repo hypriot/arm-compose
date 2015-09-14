@@ -9,6 +9,7 @@ script:
   - wrapdocker &
   - sleep 5
   - echo "+++++ build docker compose +++++"
+  - export buildpath=$(pwd)
   - export timestamp=$(date +"%Y%m%d%H%M")
   - export VERSION=$(cat VERSION)
   - export folder=/build/$VERSION-$timestamp/
@@ -22,7 +23,8 @@ script:
   - shasum -a 256 docker-compose-`uname -s`-`uname -m` >docker-compose-`uname -s`-`uname -m`.sha256
   - export PACKAGE_RELEASE_VERSION=${DRONE_BUILD_NUMBER:-1}
   - export PACKAGE_NAME=compose_$VERSION-${PACKAGE_RELEASE_VERSION}_armhf
-  - ./build/build_debian_package.sh $PACKAGE_NAME $VERSION $folder
+  - cd $buildpath
+  - ./build_debian_package.sh $PACKAGE_NAME $VERSION $folder
   - echo "upload debian package to package cloud"
 # see documentation for this api call at https://packagecloud.io/docs/api#resource_packages_method_create
   - curl -X POST https://$(PACKAGECLOUD_API_TOKEN):@packagecloud.io/api/v1/repos/Hypriot/Schatzkiste/packages.json \
