@@ -1,0 +1,9 @@
+Package: compose
+Version: <VERSION>
+Section: admin
+Priority: optional
+Architecture: armhf
+Essential: no
+Installed-Size: 14336
+Maintainer: blog.hypriot.com
+Description: docker-compose for armhf
