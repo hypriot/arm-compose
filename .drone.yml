@@ -5,7 +5,6 @@ docker:
 git:
   path: github.com/hypriot/arm-compose
 script:
-  - ls -la ./build
   - echo "+++++ start docker daemon +++++"
   - wrapdocker &
   - sleep 5
