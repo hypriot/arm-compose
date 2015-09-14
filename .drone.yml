@@ -11,6 +11,7 @@ script:
   - sleep 5
   - echo "+++++ build docker compose +++++"
   - export buildpath=$(pwd)
+  - echo $buildpath
   - export timestamp=$(date +"%Y%m%d%H%M")
   - export VERSION=$(cat VERSION)
   - export folder=/build/$VERSION-$timestamp/
