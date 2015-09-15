@@ -28,8 +28,7 @@ script:
   - ./build_debian_package.sh $PACKAGE_NAME $VERSION $folder
   - echo "upload debian package to package cloud"
 # see documentation for this api call at https://packagecloud.io/docs/api#resource_packages_method_create
-  - curl -X POST https://${PACKAGECLOUD_API_TOKEN}:@packagecloud.io/api/v1/repos/Hypriot/Schatzkiste/packages.json \
-    -F "package[distro_version_id]=24" -F "package[package_file]=@${folder}/package/${PACKAGE_NAME}.deb"
+  - curl -X POST https://${PACKAGECLOUD_API_TOKEN}:@packagecloud.io/api/v1/repos/Hypriot/Schatzkiste/packages.json -F "package[distro_version_id]=24" -F "package[package_file]=@${folder}/package/${PACKAGE_NAME}.deb"
   - echo "+++++ stop docker daemon +++++"
   - start-stop-daemon --stop --pidfile "/var/run/docker.pid"
   - echo "#####################\n***** COMPLETED *****\n#####################"
