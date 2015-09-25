@@ -1,4 +1,4 @@
-Package: compose
+Package: docker-compose
 Version: <VERSION>
 Section: admin
 Priority: optional
