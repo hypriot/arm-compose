@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # bash script to create a simple debian package
 
 PACKAGE_NAME=$1
@@ -10,7 +10,7 @@ mkdir -p $BUILD_DIR/package/$PACKAGE_NAME/DEBIAN
 mkdir -p $BUILD_DIR/package/$PACKAGE_NAME/usr/local/bin
 
 # copy consul binary to destination
-cp $BUILD_DIR/docker-compose* $BUILD_DIR/package/$PACKAGE_NAME/usr/local/bin/docker-compose
+cp $BUILD_DIR/docker-compose-`uname -s`-`uname -m` $BUILD_DIR/package/$PACKAGE_NAME/usr/local/bin/docker-compose
 
 # copy package control template and replace version info
 cp -v ./control_file_template $BUILD_DIR/package/$PACKAGE_NAME/DEBIAN/control
