@@ -9,6 +9,7 @@ BUILD_DIR=$3
 mkdir -p $BUILD_DIR/package/$PACKAGE_NAME/DEBIAN
 mkdir -p $BUILD_DIR/package/$PACKAGE_NAME/usr/local/bin
 
+
 # copy consul binary to destination
 cp $BUILD_DIR/docker-compose-`uname -s`-`uname -m` $BUILD_DIR/package/$PACKAGE_NAME/usr/local/bin/docker-compose
 
