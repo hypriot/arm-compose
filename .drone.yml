@@ -31,6 +31,8 @@ script:
   - ./build_debian_package.sh $PACKAGE_NAME $VERSION $folder
   - echo "upload debian package to package cloud"
   - export PACKAGECLOUD_TOKEN=$PACKAGECLOUD_API_TOKEN
+  - echo locale
+  - locale
   - package_cloud push Hypriot/Schatzkist/debian/wheezy ${folder}/package/${PACKAGE_NAME}.deb
   - # see documentation for this api call at https://packagecloud.io/docs/api#resource_packages_method_create
 #  - echo $PACKAGE_NAME
