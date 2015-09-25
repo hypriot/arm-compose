@@ -13,7 +13,9 @@ script:
   - echo $buildpath
   - export timestamp=$(date +"%Y%m%d%H%M")
   - export VERSION=$(cat VERSION)
+  - export PACKAGE_RELEASE_VERSION=${DRONE_BUILD_NUMBER:-1}
   - export PACKAGE_VERSION=${VERSION}-${PACKAGE_RELEASE_VERSION}
+  - export PACKAGE_NAME="docker-compose_${PACKAGE_VERSION}"
   - export folder=/build/$VERSION-$timestamp/
   - mkdir -p $folder/package
   - git clone -b $VERSION https://github.com/docker/compose
@@ -23,8 +25,6 @@ script:
   - cp dist/docker-compose-* $folder/docker-compose-`uname -s`-`uname -m`
   - cd $folder
   - shasum -a 256 docker-compose-`uname -s`-`uname -m` >docker-compose-`uname -s`-`uname -m`.sha256
-  - export PACKAGE_RELEASE_VERSION=${DRONE_BUILD_NUMBER:-1}
-  - export PACKAGE_NAME="docker-compose_${PACKAGE_VERSION}"
   - cd $buildpath
   - ./build_debian_package.sh ${PACKAGE_NAME} ${PACKAGE_VERSION} $folder
   - echo "upload debian package to package cloud"
