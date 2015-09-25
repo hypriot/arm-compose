@@ -26,7 +26,7 @@ script:
   - cd $folder
   - shasum -a 256 docker-compose-`uname -s`-`uname -m` >docker-compose-`uname -s`-`uname -m`.sha256
   - export PACKAGE_RELEASE_VERSION=${DRONE_BUILD_NUMBER:-1}
-  - export PACKAGE_NAME="compose_${VERSION}-${PACKAGE_RELEASE_VERSION}_armhf"
+  - export PACKAGE_NAME="compose_${VERSION}-${PACKAGE_RELEASE_VERSION}"
   - cd $buildpath
   - ./build_debian_package.sh $PACKAGE_NAME $VERSION $folder
   - echo "upload debian package to package cloud"
