@@ -5,6 +5,7 @@ docker:
 git:
   path: github.com/hypriot/arm-compose
 script:
+  - gem install package_cloud
   - echo "+++++ start docker daemon +++++"
   - wrapdocker &
   - sleep 5
