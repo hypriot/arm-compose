@@ -87,10 +87,12 @@ RUN pip install tox==2.1.1
 RUN apt-get update -qq && \
     apt-get install -qy wget bzip2
 RUN cd /tmp && \
-    wget -q https://pypi.python.org/packages/source/P/PyInstaller/PyInstaller-2.1.tar.gz && \
-    tar xzf PyInstaller-2.1.tar.gz && \
-    cd PyInstaller-2.1/bootloader && \
-    python ./waf configure --no-lsb build install
+    wget -q https://github.com/pyinstaller/pyinstaller/releases/download/3.0/PyInstaller-3.0.tar.gz && \
+    tar xzf PyInstaller-3.0.tar.gz && \
+    cd PyInstaller-3.0/bootloader && \
+    rm wscript && \
+    wget https://raw.githubusercontent.com/matysek/pyinstaller/6d65e7cea428ac207a27297c8adc169c17ee5776/bootloader/wscript && \
+    python ./waf distclean --no-lsb all
 
 ADD requirements.txt /code/
 ADD requirements-dev.txt /code/
