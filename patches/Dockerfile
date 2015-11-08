@@ -12,10 +12,23 @@ RUN set -ex; \
         apt-transport-https \
         ca-certificates \
         curl \
+        libsqlite3-dev \
         lxc \
         iptables \
     ; \
     rm -rf /var/lib/apt/lists/*
+
+ENV ALL_DOCKER_VERSIONS 1.7.1
+
+RUN set -ex; \
+    curl -L http://downloads.hypriot.com/docker-hypriot_1.7.1-1_armhf.deb -o docker-hypriot_1.7.1-1_armhf.deb; \
+    dpkg -x docker-hypriot_1.7.1-1_armhf.deb /tmp/docker || true; \
+    mv /tmp/docker/usr/bin/docker /usr/local/bin/docker-1.7.1; \
+    rm -f docker-hypriot_1.7.1-1_armhf.deb; \
+    rm -rf /tmp/docker
+
+# Set the default Docker to be run
+RUN ln -s /usr/local/bin/docker-1.7.1 /usr/local/bin/docker
 
 # Build Python 2.7.9 from source
 RUN set -ex; \
@@ -28,6 +41,18 @@ RUN set -ex; \
     cd ..; \
     rm -rf /Python-2.7.9; \
     rm Python-2.7.9.tgz
+
+# Build python 3.4 from source
+RUN set -ex; \
+    curl -LO https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz; \
+    tar -xzf Python-3.4.3.tgz; \
+    cd Python-3.4.3; \
+    ./configure --enable-shared; \
+    make; \
+    make install; \
+    cd ..; \
+    rm -rf /Python-3.4.3; \
+    rm Python-3.4.3.tgz
 
 # Make libpython findable
 ENV LD_LIBRARY_PATH /usr/local/lib
@@ -48,40 +73,34 @@ RUN set -ex; \
     rm -rf pip-7.0.1; \
     rm pip-7.0.1.tar.gz
 
-ENV ALL_DOCKER_VERSIONS 1.7.1
-
-RUN set -ex; \
-    curl -L http://downloads.hypriot.com/docker-hypriot_1.7.1-1_armhf.deb -o docker-hypriot_1.7.1-1_armhf.deb; \
-    dpkg -x docker-hypriot_1.7.1-1_armhf.deb /tmp/docker || true; \
-    mv /tmp/docker/usr/bin/docker /usr/local/bin/docker-1.7.1; \
-    rm -f docker-hypriot_1.7.1-1_armhf.deb; \
-    rm -rf /tmp/docker
-
-# Set the default Docker to be run
-RUN ln -s /usr/local/bin/docker-1.7.1 /usr/local/bin/docker
+RUN apt-get update -qq; \
+    apt-get install -y locales
+# Python3 requires a valid locale
+RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+ENV LANG en_US.UTF-8
 
 RUN useradd -d /home/user -m -s /bin/bash user
 WORKDIR /code/
 
-ADD requirements.txt /code/
-RUN pip install -r requirements.txt
-
-ADD requirements-dev.txt /code/
-RUN pip install -r requirements-dev.txt
-
-ADD . /code/
-RUN python setup.py install
+RUN pip install tox==2.1.1
 
 RUN apt-get update -qq && \
-    apt-get install -qy wget bzip2 && \
-    cd /tmp && \
+    apt-get install -qy wget bzip2
+RUN cd /tmp && \
     wget -q https://pypi.python.org/packages/source/P/PyInstaller/PyInstaller-2.1.tar.gz && \
     tar xzf PyInstaller-2.1.tar.gz && \
     cd PyInstaller-2.1/bootloader && \
-    python ./waf configure --no-lsb build install && \
-    ln -s /tmp/PyInstaller-2.1/PyInstaller/bootloader/Linux-32bit-arm /usr/local/lib/python2.7/site-packages/PyInstaller/bootloader/Linux-32bit-arm
+    python ./waf configure --no-lsb build install
 
-# Patch pyinstaller to run as root inside the container
-RUN sed -i '/    if is_unix:/i\ \ \ \ return 0' /usr/local/lib/python2.7/site-packages/PyInstaller/utils/misc.py
+ADD requirements.txt /code/
+ADD requirements-dev.txt /code/
+ADD .pre-commit-config.yaml /code/
+ADD setup.py /code/
+ADD tox.ini /code/
+ADD compose /code/compose/
+RUN tox --notest
 
-ENTRYPOINT ["/usr/local/bin/docker-compose"]
+ADD . /code/
+RUN chown -R user /code/
+
+ENTRYPOINT ["/code/.tox/py27/bin/docker-compose"]

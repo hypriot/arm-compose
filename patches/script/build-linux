@@ -4,8 +4,8 @@ set -ex
 
 TAG="docker-compose"
 docker build -t "$TAG" .
-docker run \
+docker run -ti \
   --rm \
-  --volume="$(pwd):/code" \
+  --volume="$(pwd)/dist:/code/dist" \
   --entrypoint="script/build-linux-inner" \
   "$TAG"
