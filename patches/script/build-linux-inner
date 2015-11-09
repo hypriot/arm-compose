@@ -2,18 +2,13 @@
 
 set -ex
 
-TARGET=dist/docker-compose-Linux-arm
+TARGET=dist/docker-compose-$(uname -s)-$(uname -m)
 VENV=/code/.tox/py27
-
 
 mkdir -p `pwd`/dist
 chmod 777 `pwd`/dist
 
-ln -s /tmp/PyInstaller-3.0/PyInstaller /code/.tox/py27/lib/python2.7/site-packages/PyInstaller
-sed -i '/    if is_unix:/i\ \ \ \ return 0' /code/.tox/py27/lib/python2.7/site-packages/PyInstaller/utils/misc.py
-
 $VENV/bin/pip install -q -r requirements-build.txt
-
 su -c "$VENV/bin/pyinstaller docker-compose.spec" user
 mv dist/docker-compose $TARGET
 $TARGET version
