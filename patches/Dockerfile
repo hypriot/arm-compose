@@ -18,17 +18,12 @@ RUN set -ex; \
     ; \
     rm -rf /var/lib/apt/lists/*
 
-ENV ALL_DOCKER_VERSIONS 1.7.1
-
 RUN set -ex; \
-    curl -L http://downloads.hypriot.com/docker-hypriot_1.7.1-1_armhf.deb -o docker-hypriot_1.7.1-1_armhf.deb; \
-    dpkg -x docker-hypriot_1.7.1-1_armhf.deb /tmp/docker || true; \
-    mv /tmp/docker/usr/bin/docker /usr/local/bin/docker-1.7.1; \
-    rm -f docker-hypriot_1.7.1-1_armhf.deb; \
+    curl -L https://packagecloud.io/Hypriot/Schatzkiste/packages/debian/wheezy/docker-hypriot_1.8.3-1_armhf.deb/download -o docker-hypriot_1.8.3-1_armhf.deb; \
+    dpkg -x docker-hypriot_1.8.3-1_armhf.deb /tmp/docker || true; \
+    mv /tmp/docker/usr/bin/docker /usr/local/bin/docker; \
+    rm -f docker-hypriot_1.8.3-1_armhf.deb; \
     rm -rf /tmp/docker
-
-# Set the default Docker to be run
-RUN ln -s /usr/local/bin/docker-1.7.1 /usr/local/bin/docker
 
 # Build Python 2.7.9 from source
 RUN set -ex; \
