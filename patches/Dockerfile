@@ -3,18 +3,18 @@ FROM resin/rpi-raspbian:wheezy
 RUN set -ex; \
     apt-get update -qq; \
     apt-get install -y \
+        locales \
         gcc \
         make \
         zlib1g \
         zlib1g-dev \
         libssl-dev \
         git \
-        apt-transport-https \
         ca-certificates \
         curl \
         libsqlite3-dev \
-        lxc \
-        iptables \
+        apt-transport-https \
+        bzip2 \
     ; \
     rm -rf /var/lib/apt/lists/*
 
@@ -32,49 +32,39 @@ RUN ln -s /usr/local/bin/docker-1.7.1 /usr/local/bin/docker
 
 # Build Python 2.7.9 from source
 RUN set -ex; \
-    curl -LO https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tgz; \
-    tar -xzf Python-2.7.9.tgz; \
+    curl -L https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tgz | tar -xz; \
     cd Python-2.7.9; \
     ./configure --enable-shared; \
     make; \
     make install; \
     cd ..; \
-    rm -rf /Python-2.7.9; \
-    rm Python-2.7.9.tgz
+    rm -rf /Python-2.7.9
 
 # Build python 3.4 from source
 RUN set -ex; \
-    curl -LO https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz; \
-    tar -xzf Python-3.4.3.tgz; \
+    curl -L https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz | tar -xz; \
     cd Python-3.4.3; \
     ./configure --enable-shared; \
     make; \
     make install; \
     cd ..; \
-    rm -rf /Python-3.4.3; \
-    rm Python-3.4.3.tgz
+    rm -rf /Python-3.4.3
 
 # Make libpython findable
 ENV LD_LIBRARY_PATH /usr/local/lib
 
 # Install setuptools
 RUN set -ex; \
-    curl -LO https://bootstrap.pypa.io/ez_setup.py; \
-    python ez_setup.py; \
-    rm ez_setup.py
+    curl -L https://bootstrap.pypa.io/ez_setup.py | python
 
 # Install pip
 RUN set -ex; \
-    curl -LO https://pypi.python.org/packages/source/p/pip/pip-7.0.1.tar.gz; \
-    tar -xzf pip-7.0.1.tar.gz; \
+    curl -L https://pypi.python.org/packages/source/p/pip/pip-7.0.1.tar.gz | tar -xz; \
     cd pip-7.0.1; \
     python setup.py install; \
     cd ..; \
-    rm -rf pip-7.0.1; \
-    rm pip-7.0.1.tar.gz
+    rm -rf pip-7.0.1
 
-RUN apt-get update -qq; \
-    apt-get install -y locales
 # Python3 requires a valid locale
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 ENV LANG en_US.UTF-8
@@ -84,16 +74,6 @@ WORKDIR /code/
 
 RUN pip install tox==2.1.1
 
-RUN apt-get update -qq && \
-    apt-get install -qy wget bzip2
-RUN cd /tmp && \
-    wget -q https://github.com/pyinstaller/pyinstaller/releases/download/3.0/PyInstaller-3.0.tar.gz && \
-    tar xzf PyInstaller-3.0.tar.gz && \
-    cd PyInstaller-3.0/bootloader && \
-    rm wscript && \
-    wget https://raw.githubusercontent.com/matysek/pyinstaller/6d65e7cea428ac207a27297c8adc169c17ee5776/bootloader/wscript && \
-    python ./waf distclean --no-lsb all
-
 ADD requirements.txt /code/
 ADD requirements-dev.txt /code/
 ADD .pre-commit-config.yaml /code/
@@ -101,6 +81,14 @@ ADD setup.py /code/
 ADD tox.ini /code/
 ADD compose /code/compose/
 RUN tox --notest
+
+RUN cd /tmp; \
+    curl -L https://github.com/pyinstaller/pyinstaller/releases/download/3.0/PyInstaller-3.0.tar.gz | tar -xz; \
+    cd PyInstaller-3.0/bootloader; \
+    curl -LO https://raw.githubusercontent.com/matysek/pyinstaller/6d65e7cea428ac207a27297c8adc169c17ee5776/bootloader/wscript; \
+    python ./waf distclean --no-lsb all; \
+    ln -s /tmp/PyInstaller-3.0/PyInstaller /code/.tox/py27/lib/python2.7/site-packages/PyInstaller; \
+    sed -i '/    if is_unix:/i\ \ \ \ return 0' /code/.tox/py27/lib/python2.7/site-packages/PyInstaller/utils/misc.py
 
 ADD . /code/
 RUN chown -R user /code/
