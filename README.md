@@ -20,4 +20,4 @@ There are some file that have to be patched in the upstream repo. These files ar
 For the ARM cpu type we have to patch the Dockerfile to adjust the `FROM` line and downloading a docker deb package as well as the PyInstaller 3.0 ARM bootloader.
 
 * Dockerfile
-* script/build-linux-inner
+
