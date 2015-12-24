@@ -12,7 +12,6 @@ build:
     - export BUILD_RESULTS=/drone/src/buildresult
     - export TIMESTAMP=$(date +"%Y-%m-%d_%H%M")
     - export REPO=$(git rev-parse --short HEAD)
-    - git clone -b ${VERSION} https://github.com/crosbymichael/dockerui
     - export buildpath=$(pwd)
     - echo $buildpath
     - export PACKAGE_RELEASE_VERSION=${DRONE_BUILD_NUMBER:-1}
