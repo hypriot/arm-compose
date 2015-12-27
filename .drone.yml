@@ -22,9 +22,6 @@ build:
     - git clone -b $VERSION https://github.com/docker/compose
     - cp -r patches/* compose/
     - cd compose
-    - pwd && ls -la .
-    - ls -la script/
-    - cat ./script/build-linux
     - ./script/build-linux
     - echo "+++++ prepare dist +++++"
     - cp dist/docker-compose-* $folder/docker-compose-`uname -s`-`uname -m`
