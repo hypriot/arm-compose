@@ -24,7 +24,8 @@ build:
     - cd compose
     - pwd && ls -la .
     - ls -la script/
-    - script/build-linux
+    - cat ./script/build-linux
+    - ./script/build-linux
     - echo "+++++ prepare dist +++++"
     - cp dist/docker-compose-* $folder/docker-compose-`uname -s`-`uname -m`
     - cd $folder
