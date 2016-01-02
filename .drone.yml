@@ -26,7 +26,7 @@ build:
     - echo "+++++ prepare dist +++++"
     - cp dist/docker-compose-* $folder/docker-compose-`uname -s`-`uname -m`
     - cd $folder
-    - shasum -a 256 docker-compose-`uname -s`-`uname -m` >docker-compose-`uname -s`-`uname -m`.sha256
+    - sha256sum docker-compose-`uname -s`-`uname -m` >docker-compose-`uname -s`-`uname -m`.sha256
     - echo "+++++ create deb +++++"
     - cd $buildpath
     - ./build_debian_package.sh ${PACKAGE_NAME} ${PACKAGE_VERSION} $folder
