@@ -27,6 +27,12 @@ build:
     - cp dist/docker-compose-* $folder/docker-compose-`uname -s`-`uname -m`
     - cd $folder
     - sha256sum docker-compose-`uname -s`-`uname -m` >docker-compose-`uname -s`-`uname -m`.sha256
+
+build:
+  image: resin/rpi-raspbian:jessie
+  commands:
+    - apt-get update
+    - apt-get install -y curl 
     - echo "+++++ create deb +++++"
     - cd $buildpath
     - ./build_debian_package.sh ${PACKAGE_NAME} ${PACKAGE_VERSION} $folder
