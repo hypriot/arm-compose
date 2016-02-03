@@ -1,51 +1,64 @@
-image: registry.hypriot.com/armbuildchain/dockerindocker
-docker:
-  volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-git:
-  path: github.com/hypriot/arm-compose
-script:
-  - echo "+++++ start docker daemon +++++"
-  - wrapdocker &
-  - sleep 5
-  - echo "+++++ build docker compose +++++"
-  - export buildpath=$(pwd)
-  - echo $buildpath
-  - export timestamp=$(date +"%Y%m%d%H%M")
-  - export VERSION=$(cat VERSION)
-  - export PACKAGE_RELEASE_VERSION=${DRONE_BUILD_NUMBER:-1}
-  - export PACKAGE_VERSION=${VERSION}-${PACKAGE_RELEASE_VERSION}
-  - export PACKAGE_NAME="docker-compose_${PACKAGE_VERSION}"
-  - export folder=/build/$VERSION-$timestamp/
-  - mkdir -p $folder/package
-  - git clone -b $VERSION https://github.com/docker/compose
-  - cp -r patches/* compose/
-  - cd compose
-  - script/build-linux
-  - cp dist/docker-compose-* $folder/docker-compose-`uname -s`-`uname -m`
-  - cd $folder
-  - shasum -a 256 docker-compose-`uname -s`-`uname -m` >docker-compose-`uname -s`-`uname -m`.sha256
-  - cd $buildpath
-  - ./build_debian_package.sh ${PACKAGE_NAME} ${PACKAGE_VERSION} $folder
-  - echo "upload debian package to package cloud"
-  - # see documentation for this api call at https://packagecloud.io/docs/api#resource_packages_method_create
-  - curl -X POST https://${PACKAGECLOUD_API_TOKEN}:@packagecloud.io/api/v1/repos/Hypriot/Schatzkiste/packages.json -F "package[distro_version_id]=24" -F "package[package_file]=@${folder}/package/${PACKAGE_NAME}.deb"
-  - echo "+++++ stop docker daemon +++++"
-  - start-stop-daemon --stop --pidfile "/var/run/docker.pid"
-  - echo "#####################\n***** COMPLETED *****\n#####################"
+#debug: true
+
+build:
+  image: firecyberice/rpi-docker:1.10.0-dev
+  extra_hosts:
+    - docker
+  environment:
+    - DOCKER_HOST=tcp://localhost:2375
+  commands:
+    - apk update && apk add git curl bash tree
+    - export VERSION=$(cat VERSION)
+    - export BUILD_RESULTS=/drone/src/buildresult
+    - export TIMESTAMP=$(date +"%Y-%m-%d_%H%M")
+    - export REPO=$(git rev-parse --short HEAD)
+    - export buildpath=$(pwd)
+    - echo $buildpath
+    - export PACKAGE_RELEASE_VERSION=${DRONE_BUILD_NUMBER:-1}
+    - export PACKAGE_VERSION=${VERSION}-${PACKAGE_RELEASE_VERSION}
+    - export PACKAGE_NAME=docker-compose
+#_${PACKAGE_VERSION}
+    - export folder=$BUILD_RESULTS/${VERSION}-${TIMESTAMP}
+    - mkdir -p $folder/package
+    - git clone -b $VERSION https://github.com/docker/compose
+    - cp -r patches/* compose/
+    - cd compose
+    - ./script/build-linux
+    - echo "+++++ prepare dist +++++"
+    - cp dist/docker-compose-* $folder/docker-compose-`uname -s`-`uname -m`
+    - cd $folder
+    - sha256sum docker-compose-`uname -s`-`uname -m` >docker-compose-`uname -s`-`uname -m`.sha256
+    - echo "+++++ create deb +++++"
+    - docker run -t -v $buildpath:$buildpath -v $folder:$folder -e PACKAGE_NAME -e PACKAGE_VERSION -e folder -e buildpath resin/rpi-raspbian:jessie bash -c "echo $PACKAGE_NAME%$PACKAGE_VERSION%$buildpath%$folder && cd $buildpath && ./build_debian_package.sh $PACKAGE_NAME $PACKAGE_VERSION $folder"
+    - echo "+++++ upload deb to package cloud +++++"
+    - # see documentation for this api call at https://packagecloud.io/docs/api#resource_packages_method_create
+    - curl -X POST https://${PACKAGECLOUD_API_TOKEN}:@packagecloud.io/api/v1/repos/$$PACKAGECLOUD_USER_REPO/packages.json -F "package[distro_version_id]=24" -F "package[package_file]=@${folder}/package/${PACKAGE_NAME}.deb"
+
+compose:
+  docker:
+    privileged: true
+    image: firecyberice/rpi-docker:1.10.0-dev-dind
+
 publish:
   s3:
     acl: public-read
-    region: eu-central-1
-    bucket: buildserver-production
+    region: $$AWS_DEFAULT_REGION
+    bucket: $$AWS_BUCKET
     access_key: $$AWS_ACCESS_KEY_ID
     secret_key: $$AWS_SECRET_ACCESS_KEY
-    source: /build/
+    source: /drone/src/buildresult
     target: arm-binaries/compose/
     recursive: true
+#    when:
+#      branch: master
+
 notify:
   slack:
     webhook_url: $$SLACK_WEBHOOK_URL
-    on_started: false
-    on_success: true
-    on_failure: true
+    channel: buildstatus
+    username: Drone
+    when:
+      started: false
+      success: true
+      failure: true
+
