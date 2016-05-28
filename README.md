@@ -12,7 +12,7 @@ You can find the DEB package for `docker-compose` in Hypriot's Schatzkiste. Add 
 ```bash
 sudo apt-get update
 sudo apt-get install -y apt-transport-https
-echo "deb https://packagecloud.io/Hypriot/Schatzkiste/debian/ wheezy main" | sudo tee /etc/apt/sources.list.d/hypriot.list
+echo "deb https://packagecloud.io/Hypriot/Schatzkiste/debian/ jessie main" | sudo tee /etc/apt/sources.list.d/hypriot.list
 ```
 
 ### Install or Update
