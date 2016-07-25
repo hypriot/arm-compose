@@ -27,38 +27,53 @@ RUN set -ex; \
 
 # Build Python 2.7.9 from source
 RUN set -ex; \
-    curl -L https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tgz | tar -xz; \
-    cd Python-2.7.9; \
-    ./configure --enable-shared; \
-    make; \
-    make install; \
-    cd ..; \
-    rm -rf /Python-2.7.9
+    apt-get install -y \
+        python2.7
+
+# RUN set -ex; \
+#     curl -L https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tgz | tar -xz; \
+#     cd Python-2.7.9; \
+#     ./configure --enable-shared; \
+#     make; \
+#     make install; \
+#     cd ..; \
+#     rm -rf /Python-2.7.9
 
 # Build python 3.4 from source
 RUN set -ex; \
-    curl -L https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz | tar -xz; \
-    cd Python-3.4.3; \
-    ./configure --enable-shared; \
-    make; \
-    make install; \
-    cd ..; \
-    rm -rf /Python-3.4.3
+    apt-get install -y \
+        python3
+
+# RUN set -ex; \
+#     curl -L https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz | tar -xz; \
+#     cd Python-3.4.3; \
+#     ./configure --enable-shared; \
+#     make; \
+#     make install; \
+#     cd ..; \
+#     rm -rf /Python-3.4.3
 
 # Make libpython findable
 ENV LD_LIBRARY_PATH /usr/local/lib
 
 # Install setuptools
-RUN set -ex; \
-    curl -L https://bootstrap.pypa.io/ez_setup.py | python
+# RUN set -ex; \
+#     curl -L https://bootstrap.pypa.io/ez_setup.py | python
 
 # Install pip
 RUN set -ex; \
-    curl -L https://pypi.python.org/packages/source/p/pip/pip-7.0.1.tar.gz | tar -xz; \
-    cd pip-7.0.1; \
-    python setup.py install; \
-    cd ..; \
-    rm -rf pip-7.0.1
+    apt-get install -y \
+        python-pip
+
+# RUN set -ex; \
+#     curl -L https://pypi.python.org/packages/source/p/pip/pip-7.0.1.tar.gz | tar -xz; \
+#     cd pip-7.0.1; \
+#     python setup.py install; \
+#     cd ..; \
+#     rm -rf pip-7.0.1
+
+# Install setuptools
+RUN pip install setuptools -U
 
 # Python3 requires a valid locale
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
