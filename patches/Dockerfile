@@ -85,6 +85,12 @@ ENV LANG en_US.UTF-8
 RUN useradd -d /home/user -m -s /bin/bash user
 WORKDIR /code/
 
+
+# Install tox
+RUN set -ex; \
+    apt-get install -y \
+        python-tox
+
 RUN pip install tox==2.1.1
 
 ADD requirements.txt /code/
