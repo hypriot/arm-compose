@@ -29,7 +29,8 @@ RUN set -ex; \
 RUN set -ex; \
     apt-get update -qq; \
     apt-get install -y \
-        python2.7
+        python2.7 \
+        python2.7-dev
 
 # RUN set -ex; \
 #     curl -L https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tgz | tar -xz; \
@@ -43,7 +44,8 @@ RUN set -ex; \
 # Build python 3.4 from source
 RUN set -ex; \
     apt-get install -y \
-        python3
+        python3 \
+        python3-dev
 
 # RUN set -ex; \
 #     curl -L https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz | tar -xz; \
