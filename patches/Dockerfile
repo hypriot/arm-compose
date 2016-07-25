@@ -27,6 +27,7 @@ RUN set -ex; \
 
 # Build Python 2.7.9 from source
 RUN set -ex; \
+    apt-get update -qq; \
     apt-get install -y \
         python2.7
 
