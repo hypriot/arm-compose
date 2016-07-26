@@ -25,58 +25,40 @@ RUN set -ex; \
     rm -f docker-hypriot_1.8.3-1_armhf.deb; \
     rm -rf /tmp/docker
 
-# Build Python 2.7.9 from source
+# Build Python 2.7.12 from source
 RUN set -ex; \
-    apt-get update -qq; \
-    apt-get install -y \
-        python2.7 \
-        python2.7-dev
-
-# RUN set -ex; \
-#     curl -L https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tgz | tar -xz; \
-#     cd Python-2.7.9; \
-#     ./configure --enable-shared; \
-#     make; \
-#     make install; \
-#     cd ..; \
-#     rm -rf /Python-2.7.9
+    curl -L https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz | tar -xz; \
+    cd Python-2.7.12; \
+    ./configure --enable-shared; \
+    make; \
+    make install; \
+    cd ..; \
+    rm -rf /Python-2.7.12
 
 # Build python 3.4 from source
 RUN set -ex; \
-    apt-get install -y \
-        python3 \
-        python3-dev
-
-# RUN set -ex; \
-#     curl -L https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz | tar -xz; \
-#     cd Python-3.4.3; \
-#     ./configure --enable-shared; \
-#     make; \
-#     make install; \
-#     cd ..; \
-#     rm -rf /Python-3.4.3
+    curl -L https://www.python.org/ftp/python/3.4.5/Python-3.4.5.tgz | tar -xz; \
+    cd Python-3.4.5; \
+    ./configure --enable-shared; \
+    make; \
+    make install; \
+    cd ..; \
+    rm -rf /Python-3.4.5
 
 # Make libpython findable
 ENV LD_LIBRARY_PATH /usr/local/lib
 
 # Install setuptools
-# RUN set -ex; \
-#     curl -L https://bootstrap.pypa.io/ez_setup.py | python
+RUN set -ex; \
+    curl -L https://bootstrap.pypa.io/ez_setup.py | python
 
 # Install pip
 RUN set -ex; \
-    apt-get install -y \
-        python-pip
-
-# RUN set -ex; \
-#     curl -L https://pypi.python.org/packages/source/p/pip/pip-7.0.1.tar.gz | tar -xz; \
-#     cd pip-7.0.1; \
-#     python setup.py install; \
-#     cd ..; \
-#     rm -rf pip-7.0.1
-
-# Install setuptools
-RUN pip install setuptools -U
+    curl -L https://pypi.python.org/packages/source/p/pip/pip-8.1.2.tar.gz | tar -xz; \
+    cd pip-8.1.2; \
+    python setup.py install; \
+    cd ..; \
+    rm -rf pip-8.1.2
 
 # Python3 requires a valid locale
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
@@ -85,9 +67,9 @@ ENV LANG en_US.UTF-8
 RUN useradd -d /home/user -m -s /bin/bash user
 WORKDIR /code/
 
-
 # Install tox
 RUN set -ex; \
+    apt-get update -qq; \
     apt-get install -y \
         python-tox
 
@@ -102,8 +84,8 @@ ADD compose /code/compose/
 RUN tox --notest
 
 RUN cd /tmp; \
-    curl -L https://github.com/pyinstaller/pyinstaller/releases/download/3.0/PyInstaller-3.0.tar.gz | tar -xz; \
-    cd PyInstaller-3.0/bootloader; \
+    curl -L https://github.com/pyinstaller/pyinstaller/releases/download/3.2/PyInstaller-3.2.tar.gz | tar -xz; \
+    cd PyInstaller-3.2/bootloader; \
     curl -LO https://raw.githubusercontent.com/matysek/pyinstaller/6d65e7cea428ac207a27297c8adc169c17ee5776/bootloader/wscript; \
     python ./waf distclean --no-lsb all; \
     ln -s /tmp/PyInstaller-3.0/PyInstaller /code/.tox/py27/lib/python2.7/site-packages/PyInstaller; \
