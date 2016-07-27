@@ -84,7 +84,7 @@ ADD compose /code/compose/
 RUN tox --notest
 
 RUN cd /tmp; \
-    curl -L https://github.com/pyinstaller/pyinstaller/releases/download/3.2/PyInstaller-3.2.tar.gz | tar -xz; \
+    curl -L https://github.com/pyinstaller/pyinstaller/releases/download/v3.2/PyInstaller-3.2.tar.gz | tar -xz; \
     cd PyInstaller-3.2/bootloader; \
     curl -LO https://raw.githubusercontent.com/matysek/pyinstaller/6d65e7cea428ac207a27297c8adc169c17ee5776/bootloader/wscript; \
     python ./waf distclean --no-lsb all; \
