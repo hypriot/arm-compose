@@ -88,7 +88,7 @@ RUN cd /tmp; \
     cd PyInstaller-3.2/bootloader; \
     curl -LO https://raw.githubusercontent.com/matysek/pyinstaller/6d65e7cea428ac207a27297c8adc169c17ee5776/bootloader/wscript; \
     python ./waf distclean --no-lsb all; \
-    ln -s /tmp/PyInstaller-3.0/PyInstaller /code/.tox/py27/lib/python2.7/site-packages/PyInstaller; \
+    ln -s /tmp/PyInstaller-3.2/PyInstaller /code/.tox/py27/lib/python2.7/site-packages/PyInstaller; \
     sed -i '/    if is_unix:/i\ \ \ \ return 0' /code/.tox/py27/lib/python2.7/site-packages/PyInstaller/utils/misc.py
 
 ADD . /code/
