@@ -24,6 +24,7 @@ build:
     - mkdir -p $folder/package
     - git clone -b $VERSION https://github.com/docker/compose
     - cp -r patches/* compose/
+    - ./fix_pyinstaller.sh
     - cd compose
     - ./script/build/linux
     - echo "+++++ prepare dist +++++"
