@@ -24,7 +24,7 @@ script:
   fi
 
 deploy:
- provider: script
- script: ./deploy_debian_package.sh $(pwd)
- on:
-   tags: true
+  provider: script
+  script: ./deploy_debian_package.sh $(pwd)
+  on:
+    branch: master
