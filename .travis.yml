@@ -23,8 +23,8 @@ script:
     docker push hypriot/arm-pyinstaller
   fi
 
-#deploy:
-#  provider: script
-#  script: ./deploy_debian_package.sh
-#  on:
-#    tags: true
+deploy:
+ provider: script
+ script: ./deploy_debian_package.sh $(pwd)
+ on:
+   tags: true
