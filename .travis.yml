@@ -10,14 +10,21 @@ script:
 - cp -r patches/* compose/
 - sed -i '/.git/d' compose/.dockerignore
 - sed -i 's/py34,//' compose/tox.ini
-- cd compose && docker build -t docker-compose-builder .
-- docker create --name tmp docker-compose-builder
-- docker cp tmp:/code/dist dist
+# push image
+- >
+  if [ "$TRAVIS_BRANCH" == "switch-to-travis" ]; then
+    cd compose && docker build -t hypriot/arm-pyinstaller -f Dockerfile.pyinstaller .
+    docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
+    docker push hypriot/arm-pyinstaller
+  fi
+#- cd compose && docker build -t docker-compose-builder .
+#- docker create --name tmp docker-compose-builder
+#- docker cp tmp:/code/dist dist
 # build deb package
-- ./build_debian_package.sh docker-compose "$(cat VERSION)" $(pwd)
+#- ./build_debian_package.sh docker-compose "$(cat VERSION)" $(pwd)
 
-deploy:
-  provider: script
-  script: ./deploy_debian_package.sh
-  on:
-    tags: true
+#deploy:
+#  provider: script
+#  script: ./deploy_debian_package.sh
+#  on:
+#    tags: true
