@@ -10,7 +10,7 @@ script:
 - cp -r patches/* compose/
 - sed -i '/.git/d' compose/.dockerignore
 - sed -i 's/py34,//' compose/tox.ini
-- cd compose && docker build -t docker-compose-builder .
+- docker build -t docker-compose-builder compose
 - docker create --name tmp docker-compose-builder
 - docker cp tmp:/code/dist dist
 # build deb package
@@ -18,7 +18,7 @@ script:
 # build and push hypriot/arm-pyinstaller image
 - >
   if [ "$TRAVIS_BRANCH" == "pyinstaller" ]; then
-    cd compose && docker build -t hypriot/arm-pyinstaller -f Dockerfile.pyinstaller .
+    docker build -t hypriot/arm-pyinstaller -f Dockerfile.pyinstaller compose
     docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
     docker push hypriot/arm-pyinstaller
   fi
