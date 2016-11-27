@@ -9,6 +9,7 @@ script:
 - git clone -b $(cat VERSION) https://github.com/docker/compose
 - cp -r patches/* compose/
 - sed -i '/.git/d' compose/.dockerignore
+- sed -i 's/py34,//' compose/tox.ini
 - cd compose && docker build -t docker-compose-builder .
 - docker create --name tmp docker-compose-builder
 - docker cp tmp:/code/dist dist
