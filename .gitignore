@@ -1,0 +1,4 @@
+compose/
+dist/
+temp/
+*.deb
