@@ -15,6 +15,7 @@ RUN set -ex; \
         libsqlite3-dev \
         apt-transport-https \
         bzip2 \
+        python3 \
     ; \
     rm -rf /var/lib/apt/lists/*
 
@@ -36,14 +37,14 @@ RUN set -ex; \
     rm -rf /Python-2.7.9
 
 # Build python 3.4 from source
-RUN set -ex; \
-    curl -L https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz | tar -xz; \
-    cd Python-3.4.3; \
-    ./configure --enable-shared; \
-    make; \
-    make install; \
-    cd ..; \
-    rm -rf /Python-3.4.3
+# RUN set -ex; \
+#     curl -L https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz | tar -xz; \
+#     cd Python-3.4.3; \
+#     ./configure --enable-shared; \
+#     make; \
+#     make install; \
+#     cd ..; \
+#     rm -rf /Python-3.4.3
 
 # Make libpython findable
 ENV LD_LIBRARY_PATH /usr/local/lib
@@ -89,4 +90,10 @@ RUN set -ex; \
 ADD . /code/
 RUN chown -R user /code/
 
-ENTRYPOINT ["/code/.tox/py27/bin/docker-compose"]
+ENV VENV /code/.tox/py27
+RUN mkdir -p dist
+RUN chmod 777 dist
+RUN $VENV/bin/pip install -q -r requirements-build.txt
+RUN ./script/build/write-git-sha
+RUN su -c "source $VENV\/bin\/activate && $VENV\/lib\/python2.7\/site-packages\/PyInstaller\/pyinstaller.py docker-compose.spec" user
+RUN ls -l dist
