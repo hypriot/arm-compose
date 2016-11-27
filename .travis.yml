@@ -1,0 +1,32 @@
+sudo: required
+services:
+- docker
+language: bash
+script:
+# prepare qemu
+- docker run --rm --privileged multiarch/qemu-user-static:register --reset
+# build docker-compose for ARM
+- git clone -b $(cat VERSION) https://github.com/docker/compose
+- cp -r patches/* compose/
+- sed -i '/.git/d' compose/.dockerignore
+- sed -i 's/py34,//' compose/tox.ini
+- docker build -t docker-compose-builder compose
+- docker create --name tmp docker-compose-builder
+- docker cp tmp:/code/dist dist
+# build deb package
+- ./build_debian_package.sh docker-compose "$(cat VERSION)" $(pwd)
+# test deb package
+- ./test.sh
+# build and push hypriot/arm-pyinstaller image
+- >
+  if [ "$TRAVIS_BRANCH" == "pyinstaller" ]; then
+    docker build -t hypriot/arm-pyinstaller -f Dockerfile.pyinstaller compose
+    docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
+    docker push hypriot/arm-pyinstaller
+  fi
+
+deploy:
+  provider: script
+  script: ./deploy_debian_package.sh $(pwd)
+  on:
+    branch: master
