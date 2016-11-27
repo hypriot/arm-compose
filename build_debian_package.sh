@@ -1,25 +1,37 @@
 #!/bin/bash -e
 # bash script to create a simple debian package
 
+gem install fpm
+
 PACKAGE_NAME=$1
 PACKAGE_VERSION=$2
 BUILD_DIR=$3
+BUILD_NUMBER=${TRAVIS_BUILD_NUMBER}
 
-# create necessary file system structure for package
-mkdir -p $BUILD_DIR/package/$PACKAGE_NAME/DEBIAN
-mkdir -p $BUILD_DIR/package/$PACKAGE_NAME/usr/local/bin
+mkdir temp
+cd temp
 
+# Set fpm arguments
+declare -a FPM_ARGS
+FPM_ARGS+=(-s dir)
+FPM_ARGS+=(-t deb)
+FPM_ARGS+=(--force)
+FPM_ARGS+=(--verbose)
+FPM_ARGS+=(--vendor "Docker")
+FPM_ARGS+=(--category "net")
+FPM_ARGS+=(--maintainer "Hypriot")
+FPM_ARGS+=(--architecture "armhf")
+FPM_ARGS+=(--url "http://blog.hypriot.com")
+FPM_ARGS+=(--license "Apache License Version 2.0")
+FPM_ARGS+=(--name "${PACKAGE_NAME}")
+FPM_ARGS+=(--version "${PACKAGE_VERSION}")
+FPM_ARGS+=(--description "docker-compose for armhf")
+FPM_ARGS+=(--prefix /usr/local/bin)
+FPM_ARGS+=(--iteration ${BUILD_NUMBER})
+FPM_ARGS+=(--package ../)
 
-# copy consul binary to destination
-cp $BUILD_DIR/docker-compose-`uname -s`-`uname -m` $BUILD_DIR/package/$PACKAGE_NAME/usr/local/bin/docker-compose
+# copy binary to destination
+cp $BUILD_DIR/dist/docker-compose docker-compose
 
-# copy package control template and replace version info
-cp -v ./control_file_template $BUILD_DIR/package/$PACKAGE_NAME/DEBIAN/control
-sed -i'' "s/<VERSION>/${PACKAGE_VERSION}/g" $BUILD_DIR/package/$PACKAGE_NAME/DEBIAN/control
-
-# actually create package with dpkg-deb
-cd $BUILD_DIR/package
-dpkg-deb --build $PACKAGE_NAME
-
-# remove temporary folder with source package artifacts as they should not be uploaded to AWS S3
-rm -R $BUILD_DIR/package/$PACKAGE_NAME
+set -x
+fpm "${FPM_ARGS[@]}" .

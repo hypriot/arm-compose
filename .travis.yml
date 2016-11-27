@@ -1,0 +1,22 @@
+sudo: required
+services:
+- docker
+language: bash
+script:
+# prepare qemu
+- docker run --rm --privileged multiarch/qemu-user-static:register --reset
+# build docker-compose for ARM
+- git clone -b $(cat VERSION) https://github.com/docker/compose
+- cp -r patches/* compose/
+- sed -i '/.git/d' compose/.dockerignore
+- cd compose && docker build -t docker-compose-builder .
+- docker create --name tmp docker-compose-builder
+- docker cp tmp:/code/dist dist
+# build deb package
+- ./build_debian_package.sh docker-compose "$(cat VERSION)" $(pwd)
+
+deploy:
+  provider: script
+  script: ./deploy_debian_package.sh
+  on:
+    tags: true
