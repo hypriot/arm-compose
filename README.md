@@ -1,6 +1,16 @@
 # arm-compose [![Build Status](https://travis-ci.org/hypriot/arm-compose.svg?branch=master)](https://travis-ci.org/hypriot/arm-compose)
 
-This is an automated build for docker-compose on ARM.
+## Warning
+
+Is not maintained anymore -> [Issue workaround](https://github.com/hypriot/arm-compose/issues/15)
+
+```bash
+sudo apt-get remove docker-compose
+sudo apt-get install python-pip
+sudo pip install docker-compose
+```
+
+This was an automated build for docker-compose on ARM.
 This build clones the official repo [docker/compose](https://github.com/docker/compose) and generates an ARMv7 binary.
 
 ## Installation
